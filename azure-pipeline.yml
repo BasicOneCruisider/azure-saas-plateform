@@ -15,6 +15,7 @@ variables:
   backendContainer: 'tfstate'
   # Le nom du fichier d'état
   backendKey: 'platform.terraform.tfstate'
+  group: terraform-secrets
 
 stages:
   - stage: Validate
