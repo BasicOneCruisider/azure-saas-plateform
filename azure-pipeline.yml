@@ -14,7 +14,7 @@ variables:
     value: 'tfstate'
   - name: backendKey
     value: 'platform.terraform.tfstate'
-  # 👇 L'ID de ton abonnement Azure (indispensable pour Terraform)
+  # L'ID de ton abonnement Azure (indispensable pour Terraform)
   - name: subscriptionId
     value: 'a56f5503-7af4-45e6-8f96-dd6c75a8883d'
 
@@ -45,8 +45,8 @@ stages:
 
           - task: AzureCLI@2
             inputs:
-              # 👇 LE NOM EST EN DUR ICI (pas de variable)
-              azureSubscription: 'Azure-SaaS-Connection'
+              # LE NOM EST EN DUR ICI (pas de variable)
+              azureSubscription: 'Azure-SaaS-Connectio'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
@@ -92,8 +92,8 @@ stages:
 
                 - task: AzureCLI@2
                   inputs:
-                    # 👇 LE NOM EST EN DUR ICI AUSSI
-                    azureSubscription: 'Azure-SaaS-Connection'
+                    # LE NOM EST EN DUR ICI AUSSI
+                    azureSubscription: 'Azure-SaaS-Connectio'
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
