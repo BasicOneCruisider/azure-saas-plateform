@@ -44,7 +44,7 @@ stages:
 
           - task: AzureCLI@2
             inputs:
-              azureSubscription: $(azureServiceConnection)
+              azureSubscription: 'Azure-SaaS-Connection'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
@@ -87,7 +87,7 @@ stages:
 
                 - task: AzureCLI@2
                   inputs:
-                      azureSubscription: $(azureServiceConnection)
+                      azureSubscription: 'Azure-SaaS-Connection'
                       scriptType: 'bash'
                       scriptLocation: 'inlineScript'
                       inlineScript: |
