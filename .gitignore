@@ -1,0 +1,39 @@
+# -----------------------------------------------------------------------------
+# Fichiers locaux Terraform
+# -----------------------------------------------------------------------------
+# Le fichier d'état local (même si on utilise un backend distant, on l'ignore par sécurité)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Le fichier de verrouillage des providers (à versionner normalement, mais à ignorer si tu as des conflits de version sur WSL)
+# .terraform.lock.hcl 
+
+# Le dossier de cache des providers (très lourd, ne doit jamais être versionné)
+.terraform/
+.terraform.tfstate.lock.info
+
+# Les fichiers de plan (binaires, inutiles sur le dépôt)
+tfplan
+tfplan.*
+*.tfplan
+plan.out
+
+# Les fichiers de variables contenant des secrets
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+
+# Les fichiers de configuration CLI
+.terraformrc
+terraform.rc
+
+# -----------------------------------------------------------------------------
+# Fichiers système et IDE
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~

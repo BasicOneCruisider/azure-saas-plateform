@@ -1,0 +1,100 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Le nom exact de ta Service Connection Azure DevOps
+  azureServiceConnection: 'Azure-SaaS-Connectio'
+  # Le nom du groupe de ressources où se trouve ton compte de stockage (backend)
+  backendResourceGroup: 'grp-terraform-data'
+  # Le nom de ton compte de stockage
+  backendStorageAccount: 'stgaccountterrafomdata'
+  # Le nom du conteneur
+  backendContainer: 'tfstate'
+  # Le nom du fichier d'état
+  backendKey: 'platform.terraform.tfstate'
+
+stages:
+  - stage: Validate
+    displayName: 'Validate Terraform'
+    jobs:
+      - job: TerraformValidate
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: 'latest'
+          
+          - script: |
+              terraform init -backend=false
+              terraform validate
+            displayName: 'Terraform Init & Validate'
+
+  - stage: Plan
+    displayName: 'Terraform Plan'
+    dependsOn: Validate
+    jobs:
+      - job: TerraformPlan
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: 'latest'
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                terraform init \
+                  -backend-config="resource_group_name=$(backendResourceGroup)" \
+                  -backend-config="storage_account_name=$(backendStorageAccount)" \
+                  -backend-config="container_name=$(backendContainer)" \
+                  -backend-config="key=$(backendKey)"
+                
+                terraform plan -out=tfplan
+            displayName: 'Terraform Plan'
+          
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/tfplan'
+              artifact: 'tfplan'
+            displayName: 'Publier le plan'
+
+  - stage: Apply
+    displayName: 'Terraform Apply'
+    dependsOn: Plan
+    condition: succeeded()
+    jobs:
+      - deployment: TerraformApply
+        environment: 'Production-Infra'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                
+                - task: TerraformInstaller@1
+                  inputs:
+                    terraformVersion: 'latest'
+
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifact: 'tfplan'
+                    path: '$(System.DefaultWorkingDirectory)'
+
+                - task: AzureCLI@2
+                  inputs:
+                      azureSubscription: $(azureServiceConnection)
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      inlineScript: |
+                        terraform init \
+                          -backend-config="resource_group_name=$(backendResourceGroup)" \
+                          -backend-config="storage_account_name=$(backendStorageAccount)" \
+                          -backend-config="container_name=$(backendContainer)" \
+                          -backend-config="key=$(backendKey)"
+                        
+                        terraform apply -auto-approve tfplan
+                  displayName: 'Terraform Apply'
