@@ -5,18 +5,18 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  # Le nom exact de ta Service Connection Azure DevOps
-  azureServiceConnection: 'Azure-SaaS-Connectio'
-  # Le nom du groupe de ressources où se trouve ton compte de stockage (backend)
-  backendResourceGroup: 'grp-terraform-data'
-  # Le nom de ton compte de stockage
-  backendStorageAccount: 'stgaccountterrafomdata'
-  # Le nom du conteneur
-  backendContainer: 'tfstate'
-  # Le nom du fichier d'état
-  backendKey: 'platform.terraform.tfstate'
-  group: terraform-secrets
-
+  - group: terraform-secrets
+  - name: azureServiceConnection
+    value: 'Azure-SaaS-Connection'
+  - name: backendResourceGroup
+    value: 'grp-terraform-data'
+  - name: backendStorageAccount
+    value: 'stgaccountterrafomdata'
+  - name: backendContainer
+    value: 'tfstate'
+  - name: backendKey
+    value: 'platform.terraform.tfstate'
+  
 stages:
   - stage: Validate
     displayName: 'Validate Terraform'
