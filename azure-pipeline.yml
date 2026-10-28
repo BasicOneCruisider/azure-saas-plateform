@@ -5,16 +5,18 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  # Le nom exact de ta Service Connection Azure DevOps
-  azureServiceConnection: 'Azure-SaaS-Connectio'
-  # Le nom du groupe de ressources où se trouve ton compte de stockage (backend)
-  backendResourceGroup: 'grp-terraform-data'
-  # Le nom de ton compte de stockage
-  backendStorageAccount: 'stgaccountterrafomdata'
-  # Le nom du conteneur
-  backendContainer: 'tfstate'
-  # Le nom du fichier d'état
-  backendKey: 'platform.terraform.tfstate'
+  - group: terraform-secrets
+  - name: backendResourceGroup
+    value: 'grp-terraform-data'
+  - name: backendStorageAccount
+    value: 'stgaccountterrafomdata'
+  - name: backendContainer
+    value: 'tfstate'
+  - name: backendKey
+    value: 'platform.terraform.tfstate'
+  # L'ID de ton abonnement Azure (indispensable pour Terraform)
+  - name: subscriptionId
+    value: 'a56f5503-7af4-45e6-8f96-dd6c75a8883d'
 
 stages:
   - stage: Validate
@@ -43,10 +45,14 @@ stages:
 
           - task: AzureCLI@2
             inputs:
-              azureSubscription: $(azureServiceConnection)
+              # LE NOM EST EN DUR ICI (pas de variable)
+              azureSubscription: 'Azure-SaaS-Connectio'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
+                # On donne l'ID d'abonnement à Terraform
+                export ARM_SUBSCRIPTION_ID=$(subscriptionId)
+                
                 terraform init \
                   -backend-config="resource_group_name=$(backendResourceGroup)" \
                   -backend-config="storage_account_name=$(backendStorageAccount)" \
@@ -86,15 +92,18 @@ stages:
 
                 - task: AzureCLI@2
                   inputs:
-                      azureSubscription: $(azureServiceConnection)
-                      scriptType: 'bash'
-                      scriptLocation: 'inlineScript'
-                      inlineScript: |
-                        terraform init \
-                          -backend-config="resource_group_name=$(backendResourceGroup)" \
-                          -backend-config="storage_account_name=$(backendStorageAccount)" \
-                          -backend-config="container_name=$(backendContainer)" \
-                          -backend-config="key=$(backendKey)"
-                        
-                        terraform apply -auto-approve tfplan
+                    # LE NOM EST EN DUR ICI AUSSI
+                    azureSubscription: 'Azure-SaaS-Connectio'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      export ARM_SUBSCRIPTION_ID=$(subscriptionId)
+                      
+                      terraform init \
+                        -backend-config="resource_group_name=$(backendResourceGroup)" \
+                        -backend-config="storage_account_name=$(backendStorageAccount)" \
+                        -backend-config="container_name=$(backendContainer)" \
+                        -backend-config="key=$(backendKey)"
+                      
+                      terraform apply -auto-approve tfplan
                   displayName: 'Terraform Apply'
