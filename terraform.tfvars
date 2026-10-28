@@ -1,5 +1,0 @@
-sql_admin_password   = "TonMotDePasseTresComplexe123!"
-location             = "swedencentral"
-app_service_sku_name = "F1"
-dr_location          = "westus2"
-dr_stamp_name        = "westus2-02"

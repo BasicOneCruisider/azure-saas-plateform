@@ -18,6 +18,10 @@ tfplan
 tfplan.*
 *.tfplan
 plan.out
+# Les fichiers de plan (binaires, inutiles sur le dépôt)
+tfplan*
+*.tfplan
+plan.out
 
 # Les fichiers de variables contenant des secrets
 *.tfvars
